@@ -14,7 +14,6 @@ const getTagNames = (tags: any, mangaId: string): Array<Tag> => {
 	return tags.flatMap((tag: { id: string; attributes: { name: any } }) => {
 		const tagNames = getAllValues(tag.attributes.name);
 		return tagNames.map((name) => ({
-			id: tag.id,
 			mangaId,
 			name
 		}));

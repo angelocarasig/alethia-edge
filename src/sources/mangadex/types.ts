@@ -59,5 +59,5 @@ export type MangadexChapterResponse = {
 
 		pages: number;
 	};
-	relationships: Array<{ id: string; type: string }>;
+	relationships: Array<{ id: string; type: string, attributes: { [key: string]: string } }>;
 };
