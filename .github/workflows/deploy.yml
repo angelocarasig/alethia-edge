@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: test
 
     steps:
       - name: Checkout code
@@ -31,7 +32,7 @@ jobs:
           fi
 
       - name: Deploy to Cloudflare
-        if: success() # Only run if the previous step succeeded
+        if: success()
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
         run: bun run deploy
