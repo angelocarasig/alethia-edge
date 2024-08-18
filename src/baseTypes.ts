@@ -1,43 +1,36 @@
 export type Manga = {
-  id: string,
+  // ID
   sourceId: string,
+  slug: string,
 
-  /**
-   * Used to query for the manga contents
-   */
-  referenceId: string,
-  inLibrary: boolean,
-
+  // Metadata
   title: string,
-
-  /**
-   * Comma-separated string
-   */
-  alternativeTitles: string,
+  alternativeTitles: Array<string>,
   author: string,
   artist: string,
-  description: string,
+  synopsis: string,
 
-  // Date type serializes to string
-  lastRead: string,
-  lastUpdated: string,
-  dateAdded: string,
 
-  readStatus: ReadStatus,
+  // Dates type serializes to string
+  updatedAt: string,
+  createdAt: string,
+
+  // ENUMs
   contentStatus: ContentStatus,
   contentRating: ContentRating,
 
+  // URLs
   url: string,
   coverUrl: string
 }
 
-export enum ReadStatus {
-  PlanningToRead = 'Planning To Read',
-  Reading = 'Reading',
-  OnHold = 'On-Hold',
-  Dropped = 'Dropped',
-  Completed = 'Completed'
-}
+// export enum ReadStatus {
+//   PlanningToRead = 'Planning To Read',
+//   Reading = 'Reading',
+//   OnHold = 'On-Hold',
+//   Dropped = 'Dropped',
+//   Completed = 'Completed'
+// }
 
 export enum ContentStatus {
   Ongoing = 'Ongoing',
@@ -54,13 +47,8 @@ export enum ContentRating {
 }
 
 export type Chapter = {
-  id: string,
   mangaId: string,
-
-  /**
-   * Used to query for the chapter contents
-   */
-  referenceId: string,
+  slug: string,
   pages: number,
   chapterNumber: number,
   chapterTitle: string,
@@ -74,15 +62,9 @@ export type Chapter = {
   date: string,
 }
 
-export type Tag = {
-  mangaId: string,
-  name: string,
-}
-
-export type CollectionManga = Pick<Manga, 'id' | 'referenceId' | 'title' | 'coverUrl' | 'inLibrary'>;
+export type CollectionManga = Pick<Manga, 'sourceId' | 'slug' | 'title' | 'coverUrl'>;
 
 export type DisplayManga = Manga & {
 	chapters: Array<Chapter>;
-	groups: Array<any>;
-	tags: Array<Tag>;
+	tags: Array<string>;
 };

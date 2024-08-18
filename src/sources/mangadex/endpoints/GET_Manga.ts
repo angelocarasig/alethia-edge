@@ -26,7 +26,6 @@ export const getManga = async (referenceId: string): Promise<DisplayManga> => {
 	const raw = response.data.data as MangadexMangaResponse;
 	const formatted = mangadexObjectToMangaObject(raw);
 	const tags = mangadexObjectToTags(raw);
-	const groups = [{ mangaId: formatted.id, name: 'Default' }];
 
-	return { ...formatted, chapters, groups, tags };
+	return { ...formatted, chapters, tags };
 };

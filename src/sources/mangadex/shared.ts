@@ -1,4 +1,4 @@
-import { Tag, ContentStatus, Manga, ReadStatus, ContentRating } from '../../baseTypes';
+import { ContentStatus, Manga, ContentRating } from '../../baseTypes';
 import { SOURCE_ID } from './constants';
 import { MangadexMangaResponse, MangadexStatus } from './types';
 
@@ -10,13 +10,9 @@ const getAllValues = (input: any): Array<string> => {
 	}
 };
 
-const getTagNames = (tags: any, mangaId: string): Array<Tag> => {
+const getTagNames = (tags: any, mangaId: string): Array<string> => {
 	return tags.flatMap((tag: { id: string; attributes: { name: any } }) => {
-		const tagNames = getAllValues(tag.attributes.name);
-		return tagNames.map((name) => ({
-			mangaId,
-			name
-		}));
+		return getAllValues(tag.attributes.name);
 	});
 };
 
@@ -36,66 +32,58 @@ export const mangadexStatusToContentStatus = (status: MangadexStatus): ContentSt
 };
 
 export const mangaToCollectionManga = (manga: Manga) => {
-	const { id, referenceId, title, coverUrl, inLibrary } = manga;
+	const { sourceId, slug, title, coverUrl } = manga;
 
 	return {
-		id,
-		referenceId,
+		sourceId,
+		slug,
 		title,
-		coverUrl,
-		inLibrary
+		coverUrl
 	};
 };
 
 export const mangadexObjectToMangaObject = (response: MangadexMangaResponse): Manga => {
-	const id = response.id;
 	const sourceId = SOURCE_ID;
-	const referenceId = response.id;
-
-	const inLibrary = false;
+	const slug = response.id;
 
 	const title = getAllValues(response.attributes.title)[0];
-	const alternativeTitles = getAllValues(response.attributes.altTitles).join(', ');
-
+	const alternativeTitles = getAllValues(response.attributes.altTitles);
 	const author = response.relationships.find((x) => x.type === 'author')?.attributes.name || '';
 	const artist = response.relationships.find((x) => x.type === 'artist')?.attributes.name || '';
+	const synopsis = getAllValues(response.attributes.description)[0];
+
+	const updatedAt = new Date(response.attributes.updatedAt).toISOString();
+	const createdAt = new Date(response.attributes.createdAt).toISOString();
+
+	const contentStatus = mangadexStatusToContentStatus(response.attributes.status);
+	const contentRating = ContentRating.Safe;
 
 	const url = `https://mangadex.org/manga/${response.id}`;
 	const coverUrl = `https://mangadex.org/covers/${response.id}/${
 		response.relationships.find((x) => x.type === 'cover_art')?.attributes.fileName
 	}`;
 
-	const description = getAllValues(response.attributes.description)[0];
-
-	const lastRead = new Date().toISOString();
-	const dateAdded = new Date(response.attributes.createdAt).toISOString();
-	const lastUpdated = new Date(response.attributes.updatedAt).toISOString();
-
-	const readStatus = ReadStatus.PlanningToRead;
-	const contentStatus = mangadexStatusToContentStatus(response.attributes.status);
-	const contentRating = ContentRating.Safe;
-
 	return {
-		id,
 		sourceId,
-		referenceId,
-		inLibrary,
+		slug,
+
 		title,
 		alternativeTitles,
 		author,
 		artist,
+		synopsis,
+		
+		createdAt,
+		updatedAt,
+		
+		contentStatus,
+		contentRating,
+		
 		url,
 		coverUrl,
-		description,
-		lastRead,
-		dateAdded,
-		lastUpdated,
-		readStatus,
-		contentStatus,
-		contentRating
 	};
 };
 
-export const mangadexObjectToTags = (response: MangadexMangaResponse): Array<Tag> => {
+export const mangadexObjectToTags = (response: MangadexMangaResponse): Array<string> => {
 	return getTagNames(response.attributes.tags, response.id);
 }

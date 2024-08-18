@@ -18,9 +18,8 @@ export const getChapters = async (mangaId: string) => {
     }
 
 		return {
-			id: input.id,
 			mangaId: mangaId,
-			referenceId: input.id,
+			slug: input.id,
 			pages: input.attributes.pages ?? 0,
 			chapterNumber: isNaN(chapterNumber) ? 0 : chapterNumber,
 			chapterTitle: input.attributes.title ?? '',
