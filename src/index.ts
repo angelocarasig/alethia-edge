@@ -1,13 +1,24 @@
 import { Hono } from 'hono';
-
 import MangaDex from './sources/mangadex/routes';
 
 const app = new Hono();
 
-app.route('/mangadex', MangaDex);
+const routes = [
+	{ path: '/mangadex', handler: MangaDex, source: 'mangadex' }
+];
+
+const sources: Array<String> = [];
+
+routes.forEach(({ path, handler, source }) => {
+	app.route(path, handler);
+	sources.push(source);
+});
 
 app.get('/', (c) => {
-	return c.text('Hello Hono!');
+	return c.json({
+		repository: '@alethia/edge',
+		sources,
+	});
 });
 
 export default app;
