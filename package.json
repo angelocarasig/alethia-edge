@@ -5,8 +5,10 @@
     "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
+    "@illithia/types": "^1.0.5",
     "@paralleldrive/cuid2": "^2.2.2",
     "axios": "^1.7.2",
+    "cheerio": "^1.0.0",
     "hono": "^4.4.12"
   },
   "devDependencies": {
