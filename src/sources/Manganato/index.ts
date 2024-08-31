@@ -10,8 +10,8 @@ import chapter from './endpoints/chapter';
 export const source = new Hono();
 
 const routes = [
-	{ path: '/recent', handler: recent },
-	{ path: '/top', handler: top }
+	{ path: '/top', handler: top, name: 'Popular'},
+	{ path: '/recent', handler: recent, name: 'Recently Updated' },
 ];
 
 source.get('/', (c) =>

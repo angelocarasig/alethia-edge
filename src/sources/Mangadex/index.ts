@@ -10,8 +10,8 @@ import search from './endpoints/search';
 export const source = new Hono();
 
 const routes = [
-	{ path: '/recent', handler: recent },
-	{ path: '/rising', handler: rising }
+	{ path: '/rising', handler: rising, name: 'Popular New Titles' },
+	{ path: '/recent', handler: recent, name: 'Recently Updated' },
 ];
 
 source.get('/', (c) =>
