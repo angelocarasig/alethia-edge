@@ -16,7 +16,10 @@ const routes = [
 
 source.get('/', (c) =>
 	c.json({
-		routes: routes.map((route) => route.path)
+		routes: routes.map((route) => ({
+			path: route.path,
+			name: route.name
+		}))
 	})
 );
 
