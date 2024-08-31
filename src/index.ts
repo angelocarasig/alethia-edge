@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { source as MangaDex } from './sources/MangaDex';
+import { source as MangaDex } from './sources/Mangadex';
 import { source as MangaNato } from './sources/Manganato';
 
 const app = new Hono();
