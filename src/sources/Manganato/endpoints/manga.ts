@@ -2,13 +2,11 @@ import { Context } from 'hono';
 import axios from 'axios';
 
 import { BASE_MANGA_URL, SOURCE_ID, USER_AGENT } from '../constants';
-import { load } from 'cheerio';
-import { Manga } from '@illithia/types/src/types/manga';
-import { Chapter } from '@illithia/types/src/types/chapter';
-import { ContentStatus } from '@illithia/types/src/types/content-status';
-import { ContentRating } from '@illithia/types/src/types/content-rating';
+import { CheerioAPI, load } from 'cheerio';
 
 import { fetchChapters } from './chapters';
+
+import { type Manga, type Chapter, ContentStatus, ContentRating } from '@alethia/types';
 
 const manga = () => {
 	return async (c: Context) => {
@@ -22,12 +20,15 @@ const manga = () => {
 
 		const chapters = await fetchChapters(id);
 
-		const createdAt = chapters.length > 0
-			? chapters.reduce((earliest, chapter: Chapter) => {
-				const chapterDate = new Date(chapter.date);
-				return chapterDate < earliest ? chapterDate : earliest;
-			}, new Date()).toISOString()
-			: new Date().toISOString(); // Default to current date if no chapters
+		const createdAt =
+			chapters.length > 0
+				? chapters
+						.reduce((earliest, chapter: Chapter) => {
+							const chapterDate = new Date(chapter.date);
+							return chapterDate < earliest ? chapterDate : earliest;
+						}, new Date())
+						.toISOString()
+				: new Date().toISOString(); // Default to current date if no chapters
 
 		const tags = $('td:has(.info-genres)')
 			.next('td.table-value')
@@ -64,11 +65,7 @@ const manga = () => {
 					return ContentStatus.Unknown;
 			}
 		})();
-		const updatedAtText = $('span.stre-value').text().trim();
-		const date = updatedAtText ? updatedAtText.split('-')[0].trim() : '';
-		const updatedAt = date
-			? new Date(date).toISOString().split('T')[0]
-			: new Date().toISOString().split('T')[0];
+		const updatedAt = getUpdatedAt($);
 
 		const coverUrl = $('.story-info-left .info-image img').attr('src') || '';
 
@@ -93,6 +90,46 @@ const manga = () => {
 
 		return c.json({ ...manga, tags, chapters });
 	};
+};
+
+const getUpdatedAt = ($: CheerioAPI): string => {
+	const updatedLabel = $('span.stre-label')
+		.filter((_, el) => $(el).text().includes('Updated'))
+		.first();
+
+	// If the 'Updated' label is not found, return null
+	if (!updatedLabel.length) {
+		return new Date(-1).toISOString();
+	}
+
+	const dateText = updatedLabel.next('span.stre-value').text().trim();
+
+	const [datePart, timePart] = dateText.split(' - ');
+	if (!datePart || !timePart) {
+		return new Date(-1).toISOString();
+	}
+
+	const parsedDate = new Date(datePart);
+
+	let [time, period] = timePart.split(' ');
+
+	let [hours, minutes] = time.split(':').map(Number);
+
+	if (period.toUpperCase() === 'AM') {
+		if (hours === 12) hours = 0; // Midnight
+	} else if (period.toUpperCase() === 'PM') {
+		if (hours !== 12) hours += 12; // Afternoon and evening
+	}
+
+	const finalDate = new Date(
+		parsedDate.getFullYear(),
+		parsedDate.getMonth(),
+		parsedDate.getDate(),
+		hours,
+		minutes
+	);
+
+	return finalDate.toISOString();
 };
 
 export default manga;

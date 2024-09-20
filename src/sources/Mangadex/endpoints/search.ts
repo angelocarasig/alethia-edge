@@ -2,8 +2,8 @@ import { Context } from 'hono';
 import axios from 'axios';
 
 import { BASE_URL, USER_AGENT, MangadexMangaResponse } from '../constants';
-import { CollectionManga } from '@illithia/types/src/types/extensions';
 import { MangaToCollectionManga, parseMangaDexManga } from '../helpers/parser';
+import { CollectionManga } from '@alethia/types';
 
 const endpoint = BASE_URL + '/manga';
 

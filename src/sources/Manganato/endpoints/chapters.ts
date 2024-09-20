@@ -1,8 +1,8 @@
 import { load } from 'cheerio';
 import axios from 'axios';
-import { Chapter } from '@illithia/types/src/types/chapter';
 import { BASE_MANGA_URL, USER_AGENT } from '../constants';
 import { Context } from 'hono';
+import { Chapter } from '@alethia/types';
 
 export const fetchChapters = async (id: string): Promise<Array<Chapter>> => {
 	const endpoint = `${BASE_MANGA_URL}/${id}`;
@@ -17,7 +17,7 @@ export const fetchChapters = async (id: string): Promise<Array<Chapter>> => {
 		const chapterElement = $(element);
 
 		const chapterTitle = chapterElement.find('a.chapter-name').text().trim();
-    const chapterNumber = parseFloat(chapterTitle.split(' ').pop() ?? '-1'); // Use parseFloat to include decimals
+		const chapterNumber = parseFloat(chapterTitle.split(' ').pop() ?? '-1'); // Use parseFloat to include decimals
 
 		const chapterDateText = chapterElement.find('.chapter-time').attr('title') ?? -1;
 		const chapterDate = chapterDateText !== -1 ? new Date(chapterDateText) : new Date(-1);
@@ -25,7 +25,6 @@ export const fetchChapters = async (id: string): Promise<Array<Chapter>> => {
 		const chapter: Chapter = {
 			mangaId: id,
 			slug: `${id}/chapter-${chapterNumber}`,
-			pages: -1,
 			chapterNumber,
 			chapterTitle,
 			author: 'manganato',

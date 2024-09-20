@@ -7,11 +7,11 @@ const chapter = () => {
 	return async (c: Context) => {
 		const { id } = c.req.param();
 
-    console.log("ID: ", id);
+		console.log('ID: ', id);
 
 		const endpoint = `${BASE_MANGA_URL}/${id}`;
 
-    console.log("Endpoint: ", endpoint);
+		console.log('Endpoint: ', endpoint);
 
 		try {
 			const { data: html } = await axios.get(endpoint);
@@ -22,8 +22,8 @@ const chapter = () => {
 
 			$('.container-chapter-reader img').each((index, element) => {
 				const imageUrl = $(element).attr('src');
-				
-        if (imageUrl) {
+
+				if (imageUrl) {
 					imageUrls.push(imageUrl);
 				}
 			});

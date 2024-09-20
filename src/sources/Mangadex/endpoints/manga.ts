@@ -1,36 +1,36 @@
 import { Context } from 'hono';
 import axios from 'axios';
 
-import { fetchChapters } from './chapters';
 import { BASE_URL, MangadexMangaResponse, USER_AGENT } from '../constants';
 import { parseMangaDexManga, parseMangaDexTags } from '../helpers/parser';
+import { fetchChapters } from './chapters';
 
 const manga = () => {
-  return async (c: Context) => {
-    const { id } = c.req.param();
-    
-    const endpoint = `${BASE_URL}/manga/${id}`;
+	return async (c: Context) => {
+		const { id } = c.req.param();
 
-    // Call getChapters and axios.get in parallel
-    const [chapters, response] = await Promise.all([
-      fetchChapters(id),
+		const endpoint = `${BASE_URL}/manga/${id}`;
 
-      axios.get(endpoint, {
-        params: {
-          includes: ['manga', 'cover_art', 'author', 'artist', 'tag']
-        },
-        headers: {
-          'User-Agent': USER_AGENT
-        }
-      })
-    ]);
+		// Call getChapters and axios.get in parallel
+		const [chapters, response] = await Promise.all([
+			fetchChapters(id),
 
-    const raw = response.data.data as MangadexMangaResponse;
-    const formatted = parseMangaDexManga(raw);
-    const tags = parseMangaDexTags(raw);
+			axios.get(endpoint, {
+				params: {
+					includes: ['manga', 'cover_art', 'author', 'artist', 'tag']
+				},
+				headers: {
+					'User-Agent': USER_AGENT
+				}
+			})
+		]);
 
-    return c.json({ ...formatted, chapters, tags });
-  };
+		const raw = response.data.data as MangadexMangaResponse;
+		const formatted = parseMangaDexManga(raw);
+		const tags = parseMangaDexTags(raw);
+
+		return c.json({ ...formatted, chapters, tags });
+	};
 };
 
 export default manga;

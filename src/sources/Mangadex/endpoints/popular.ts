@@ -6,7 +6,7 @@ import { MangaToCollectionManga, parseMangaDexManga } from '../helpers/parser';
 
 const endpoint = BASE_URL + '/manga';
 
-const rising = () => {
+const popular = () => {
 	return async (c: Context) => {
 		const { count = '60', page = '0' } = c.req.query();
 		const _count = parseInt(count);
@@ -23,11 +23,8 @@ const rising = () => {
 				contentRating: ['safe', 'suggestive', 'erotica', 'pornographic'],
 				includes: ['manga', 'cover_art', 'author', 'artist', 'tag'],
 
-				// Sorting by rating to get the "rising" manga
-				order: { rating: 'desc' },
-				createdAtSince: new Date(new Date().setMonth(new Date().getMonth() - 1))
-					.toISOString()
-					.slice(0, 19)
+				// Sorting by rating to get the most followed manga
+				order: { followedCount: 'desc' },
 			},
 			headers: {
 				'User-Agent': USER_AGENT
@@ -40,4 +37,4 @@ const rising = () => {
 	};
 };
 
-export default rising;
+export default popular;

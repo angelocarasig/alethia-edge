@@ -23,7 +23,7 @@ source.get('/', (c) =>
 	})
 );
 
-routes.forEach(x => source.get(x.path, x.handler()));
+routes.forEach((x) => source.get(x.path, x.handler()));
 
 source.get('/manga', (c) => c.json(null));
 source.get('/manga/:id', manga());

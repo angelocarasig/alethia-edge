@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 
+import top_rated from './endpoints/top-rated';
+import popular from './endpoints/popular';
 import recent from './endpoints/recent';
 import rising from './endpoints/rising';
 import manga from './endpoints/manga';
@@ -10,6 +12,8 @@ import search from './endpoints/search';
 export const source = new Hono();
 
 const routes = [
+	{ path: '/top-rated', handler: top_rated, name: 'Highest Rated' },
+	{ path: '/popular', handler: popular, name: 'Popular' },
 	{ path: '/rising', handler: rising, name: 'Popular New Titles' },
 	{ path: '/recent', handler: recent, name: 'Recently Updated' },
 ];
@@ -23,7 +27,7 @@ source.get('/', (c) =>
 	})
 );
 
-routes.forEach(x => source.get(x.path, x.handler()));
+routes.forEach((x) => source.get(x.path, x.handler()));
 
 source.get('/manga', (c) => c.json(null));
 source.get('/manga/:id', manga());

@@ -1,3 +1,6 @@
+import type { Manga, Chapter, CollectionManga } from '@alethia/types';
+import { ContentRating, ContentStatus } from '@alethia/types';
+
 import {
 	LanguageCode,
 	MangadexChapterResponse,
@@ -6,12 +9,6 @@ import {
 	MangadexStatus,
 	SOURCE_ID
 } from '../constants';
-
-import { Manga } from '@illithia/types/src/types/manga';
-import { CollectionManga } from '@illithia/types/src/types/extensions';
-import { ContentStatus } from '@illithia/types/src/types/content-status';
-import { ContentRating } from '@illithia/types/src/types/content-rating';
-import { Chapter } from '@illithia/types/src/types/chapter';
 
 const getPreferredLanguageValue = (input: LanguageCode, preferred: string = 'en'): string => {
 	if (input[preferred]) {
@@ -88,7 +85,7 @@ export const parseMangaDexChapter = (mangaId: string, raw: MangadexChapterRespon
 
 	let scanlationGroupName = 'Mangadex';
 
-	const scanlationGroup = raw.relationships.find(rel => rel.type === 'scanlation_group');
+	const scanlationGroup = raw.relationships.find((rel) => rel.type === 'scanlation_group');
 	if (scanlationGroup && scanlationGroup.attributes) {
 		scanlationGroupName = scanlationGroup.attributes.name;
 	}
@@ -96,7 +93,6 @@ export const parseMangaDexChapter = (mangaId: string, raw: MangadexChapterRespon
 	return {
 		mangaId: mangaId,
 		slug: raw.id,
-		pages: raw.attributes.pages ?? 0,
 		chapterNumber: isNaN(chapterNumber) ? 0 : chapterNumber,
 		chapterTitle: raw.attributes.title ?? '',
 		author: scanlationGroupName,
@@ -119,4 +115,4 @@ const getTagNames = (tags: any): Array<string> => {
 
 export const parseMangaDexTags = (response: MangadexMangaResponse): Array<string> => {
 	return getTagNames(response.attributes.tags);
-}
+};
