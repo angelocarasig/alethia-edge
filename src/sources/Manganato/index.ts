@@ -24,6 +24,32 @@ source.get('/', (c) =>
 	})
 );
 
+source.get('/icon', async (c) => {
+	const imgUrl = 'https://raw.githubusercontent.com/angelocarasig/alethia-edge/refs/heads/main/assets/manganato.png';
+
+	try {
+		const response = await fetch(imgUrl);
+
+		if (!response.ok) {
+			return c.text('Failed to fetch image from Imgur', 502);
+		}
+
+		const contentType = response.headers.get('Content-Type') || 'image/png';
+		const imageBuffer = await response.arrayBuffer();
+
+		return new Response(imageBuffer, {
+			status: 200,
+			headers: {
+				'Content-Type': contentType,
+				'Cache-Control': 'public, max-age=86400'
+			}
+		});
+	} catch (error) {
+		console.error('Error fetching image:', error);
+		return c.text('Internal Server Error', 500);
+	}
+});
+
 routes.forEach((x) => source.get(x.path, x.handler()));
 
 source.get('/manga', (c) => c.json(null));

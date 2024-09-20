@@ -29,7 +29,7 @@ source.get('/', (c) =>
 );
 
 source.get('/icon', async (c) => {
-	const imgUrl = 'https://i.imgur.com/q9Gk0Sc.png';
+	const imgUrl = 'https://raw.githubusercontent.com/angelocarasig/alethia-edge/refs/heads/main/assets/mangadex.png';
 
 	try {
 		const response = await fetch(imgUrl);
