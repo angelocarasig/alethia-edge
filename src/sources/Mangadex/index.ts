@@ -20,6 +20,7 @@ const routes = [
 
 source.get('/', (c) =>
 	c.json({
+		referer: "",
 		routes: routes.map((route) => ({
 			path: route.path,
 			name: route.name

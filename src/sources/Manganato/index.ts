@@ -16,10 +16,11 @@ const routes = [
 
 source.get('/', (c) =>
 	c.json({
+		referer: "https://chapmanganato.to/",
 		routes: routes.map((route) => ({
 			path: route.path,
 			name: route.name
-		}))
+		})),
 	})
 );
 

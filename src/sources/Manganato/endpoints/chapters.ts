@@ -17,10 +17,15 @@ export const fetchChapters = async (id: string): Promise<Array<Chapter>> => {
 		const chapterElement = $(element);
 
 		const chapterTitle = chapterElement.find('a.chapter-name').text().trim();
-		const chapterNumber = parseFloat(chapterTitle.split(' ')[1]); // Use parseFloat to include decimals
+		const chapterNumber = parseFloat(chapterTitle.split(' ')[1]);
 
 		const chapterDateText = chapterElement.find('.chapter-time').attr('title') ?? -1;
 		const chapterDate = chapterDateText !== -1 ? new Date(chapterDateText) : new Date(-1);
+		
+		if (isNaN(chapterNumber)) {
+			console.log('Skipping chapter with invalid chapter number.');
+			return;
+		}
 
 		const chapter: Chapter = {
 			mangaId: id,
