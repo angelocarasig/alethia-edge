@@ -9,24 +9,50 @@ import chapters from './endpoints/chapters';
 import chapter from './endpoints/chapter';
 import search from './endpoints/search';
 
-export const source = new Hono();
-
 const routes = [
 	{ path: '/top-rated', handler: top_rated, name: 'Highest Rated' },
 	{ path: '/popular', handler: popular, name: 'Popular' },
 	{ path: '/rising', handler: rising, name: 'Popular New Titles' },
-	{ path: '/recent', handler: recent, name: 'Recently Updated' },
+	{ path: '/recent', handler: recent, name: 'Recently Updated' }
 ];
+
+export const source = new Hono();
 
 source.get('/', (c) =>
 	c.json({
-		referer: "",
+		referer: '',
 		routes: routes.map((route) => ({
 			path: route.path,
 			name: route.name
 		}))
 	})
 );
+
+source.get('/icon', async (c) => {
+	const imgUrl = 'https://i.imgur.com/q9Gk0Sc.png';
+
+	try {
+		const response = await fetch(imgUrl);
+
+		if (!response.ok) {
+			return c.text('Failed to fetch image from Imgur', 502);
+		}
+
+		const contentType = response.headers.get('Content-Type') || 'image/png';
+		const imageBuffer = await response.arrayBuffer();
+
+		return new Response(imageBuffer, {
+			status: 200,
+			headers: {
+				'Content-Type': contentType,
+				'Cache-Control': 'public, max-age=86400'
+			}
+		});
+	} catch (error) {
+		console.error('Error fetching image:', error);
+		return c.text('Internal Server Error', 500);
+	}
+});
 
 routes.forEach((x) => source.get(x.path, x.handler()));
 
