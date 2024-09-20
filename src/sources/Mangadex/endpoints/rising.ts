@@ -24,7 +24,7 @@ const rising = () => {
 				includes: ['manga', 'cover_art', 'author', 'artist', 'tag'],
 
 				// Sorting by rating to get the "rising" manga
-				order: { rating: 'desc' },
+				order: { followedCount: 'desc' },
 				createdAtSince: new Date(new Date().setMonth(new Date().getMonth() - 1))
 					.toISOString()
 					.slice(0, 19)
