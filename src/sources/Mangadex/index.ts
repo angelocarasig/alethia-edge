@@ -20,7 +20,7 @@ export const source = new Hono();
 
 source.get('/', (c) =>
 	c.json({
-		referer: '',
+		referer: 'https://mangadex.org/',
 		routes: routes.map((route) => ({
 			path: route.path,
 			name: route.name
