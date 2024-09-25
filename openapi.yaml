@@ -1,0 +1,355 @@
+openapi: 3.0.0
+info:
+  title: Alethia Host API Structure
+  version: 1.0.0
+  description: |
+    This API provides access to manga data from various sources to be used within the Alethia iOS application.
+    The API allows fetching manga details, chapters, and chapter pages.
+
+servers:
+  - url: https://your-hosted-alethia-hono-app-url
+
+tags:
+  - name: Details
+    description: >
+      Any source to be added must conform to the following:
+      - Must implement the required routes 
+        - `/manga` 
+        - `/manga/:id`
+        - `/chapters`
+        - `/chapters/:id`
+        - `/chapter`
+        - `/chapter/:id{.+}`
+
+      The source should be able to handle requests for both existing and non-existing manga/chapter IDs gracefully.
+      For testing purposes, some routes should return null.
+
+
+      Current limitations currently are that:
+        - special chapters like hiatus announcements that don't refer to a particular chapter number are not available.
+        - search not implemented.
+  - name: Source
+    description: Operations related to fetching manga sources.
+  - name: Manga
+    description: Operations related to manga retrieval and their details.
+  - name: Chapter
+    description: Operations related to fetching a manga's chapters.
+
+paths:
+  /:
+    get:
+      tags:
+        - Source
+      summary: Get all available sources
+      description: Returns a list of all available manga sources and their custom routes. The repository name
+      responses:
+        '200':
+          description: A JSON object with repository information and all available sources with their custom routes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  repository:
+                    type: string
+                    example: my-repository
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        source:
+                          type: string
+                          description: The display name of the source.
+                          example: Some Manga Scanlation Group
+                        path:
+                          type: string
+                          description: The base path for the source (so must conform to route naming)
+                          example: /some-manga-scanlation-group
+
+  /{source}:
+    get:
+      tags:
+        - Source
+      summary: Get all routes for a source
+      description: Returns all custom routes for a given source (this could be endpoints you need to define like `/recent`, `/popular`, `/top`).
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-manga-scanlation-group
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceList'
+
+  /{source}/manga:
+    get:
+      tags:
+        - Manga
+      summary: Required test for a given source's '/manga' route.
+      description: A required route that returns null to be tested in the app. Essentially acts as a 'ping' to confirm that the route exists.
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-manga-scanlation-group
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: json
+                example: null
+
+  /{source}/manga/{id}:
+    get:
+      tags:
+        - Manga
+      summary: Fetch details of a specific manga
+      description: Returns detailed information about a specific manga by its ID (slug) for the specified source.
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-manga-scanlation-group
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-character-string
+      responses:
+        '200':
+          description: Detailed manga information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisplayManga'
+
+  /{source}/chapters:
+    get:
+      tags:
+        - Chapter
+      summary: Required test for a given source's '/chapters' route.
+      description: A required route that returns null to be tested in the app. Essentially acts as a 'ping' to confirm that the route exists.
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-manga-scanlation-group
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: json
+                example: null
+
+  /{source}/chapters/{id}:
+    get:
+      tags:
+        - Chapter
+      summary: Fetch details of a specific chapter by ID
+      description: Returns detailed information about a specific chapter by its ID for the specified source, where the ID is the manga slug.
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-manga-scanlation-group
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-character-string
+      responses:
+        '200':
+          description: Detailed chapter information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+
+  /{source}/chapter:
+    get:
+      tags:
+        - Chapter
+      summary: Required test for a given source's '/chapter' route.
+      description: Returns null for testing.
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-manga-scanlation-group
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: json
+                example: null
+
+  /{source}/chapter/{id}:
+    get:
+      tags:
+        - Chapter
+      summary: Fetch details of a specific chapter by ID
+      description: Returns detailed information about a specific chapter by its chapter ID for the specified source.
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            example: some-manga-scanlation-group
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the chapter (slug)
+            pattern: .+
+          example: some-chapter-character-string
+      responses:
+        '200':
+          description: Detailed chapter information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: URL of the chapter page
+                  example: ['url-to-page-1.png', 'url-to-page-2.png', 'url-to-page-x.png']
+
+components:
+  schemas:
+    SourceList:
+      type: object
+      description: A list of routes available for a specific manga source.
+      properties:
+        referer:
+          type: string
+          description: A custom referer string to be used in header requests when displaying or downloading chapter content.
+          example: https://some-manga-scanlation-group/
+        routes:
+          type: array
+          description: A list of custom routes provided by the source. The array order returned is how it will be displayed in the app.
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                description: The path for the custom route.
+                example: /top-rated
+              name:
+                type: string
+                description: The name of the custom route to be displayed in the UI.
+                example: Highest Rated
+
+    Manga:
+      type: object
+      description: A full representation of a manga object from the source.
+      properties:
+        sourceId:
+          type: string
+          description: (to be decommissioned) the source's ID.
+        slug:
+          type: string
+        title:
+          type: string
+        alternativeTitles:
+          type: array
+          items:
+            type: string
+        author:
+          type: string
+        artist:
+          type: string
+        synopsis:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        contentStatus:
+          type: string
+          enum:
+            - Ongoing
+            - Hiatus
+            - Cancelled
+            - Completed
+            - Unknown
+        contentRating:
+          type: string
+          enum:
+            - Safe
+            - Suggestive
+            - Explicit
+        url:
+          type: string
+          format: uri
+        coverUrl:
+          type: string
+          format: uri
+
+    CollectionManga:
+      type: object
+      properties:
+        sourceId:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        coverUrl:
+          type: string
+          format: uri
+
+    DisplayManga:
+      allOf:
+        - $ref: '#/components/schemas/Manga'
+        - type: object
+          properties:
+            chapters:
+              type: array
+              items:
+                $ref: '#/components/schemas/Chapter'
+            tags:
+              type: array
+              items:
+                type: string
+
+    Chapter:
+      type: object
+      properties:
+        mangaId:
+          type: string
+        slug:
+          type: string
+        chapterNumber:
+          type: integer
+        chapterTitle:
+          type: string
+        author:
+          type: string
+        date:
+          type: string
+          format: date-time
